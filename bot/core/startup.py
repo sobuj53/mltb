@@ -1,7 +1,7 @@
 from aiofiles.os import path as aiopath, remove, makedirs
 from aiofiles import open as aiopen
 from aioshutil import rmtree
-from asyncio import create_subprocess_exec, create_subprocess_shell
+from asyncio import create_subprocess_exec, create_subprocess_shell, sleep
 from importlib import import_module
 
 from .. import (
@@ -21,11 +21,12 @@ from .. import (
 )
 from ..helper.ext_utils.db_handler import database
 from .config_manager import Config
-from .mltb_client import TgClient
+from .telegram_manager import TgClient
 from .torrent_manager import TorrentManager
 
 
 async def update_qb_options():
+    LOGGER.info("Get qBittorrent options from server")
     if not qbit_options:
         opt = await TorrentManager.qbittorrent.app.preferences()
         qbit_options.update(opt)
@@ -42,6 +43,7 @@ async def update_qb_options():
 
 
 async def update_aria2_options():
+    LOGGER.info("Get aria2 options from server")
     if not aria2_options:
         op = await TorrentManager.aria2.getGlobalOption()
         aria2_options.update(op)
@@ -50,8 +52,15 @@ async def update_aria2_options():
 
 
 async def update_nzb_options():
-    no = (await sabnzbd_client.get_config())["config"]["misc"]
-    nzb_options.update(no)
+    LOGGER.info("Get SABnzbd options from server")
+    while True:
+        try:
+            no = (await sabnzbd_client.get_config())["config"]["misc"]
+            nzb_options.update(no)
+        except:
+            await sleep(0.5)
+            continue
+        break
 
 
 async def load_settings():
@@ -221,7 +230,7 @@ async def update_variables():
                 drives_ids.append(temp[1])
                 drives_names.append(temp[0].replace("_", " "))
                 if len(temp) > 2:
-                    index_urls.append(temp[2].strip("/"))
+                    index_urls.append(temp[2])
                 else:
                     index_urls.append("")
 

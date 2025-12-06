@@ -4,7 +4,7 @@ from pyrogram.handlers import MessageHandler, CallbackQueryHandler, EditedMessag
 from ..modules import *
 from ..helper.telegram_helper.bot_commands import BotCommands
 from ..helper.telegram_helper.filters import CustomFilters
-from .mltb_client import TgClient
+from .telegram_manager import TgClient
 
 
 def add_handlers():
@@ -26,14 +26,14 @@ def add_handlers():
         MessageHandler(
             add_sudo,
             filters=command(BotCommands.AddSudoCommand, case_sensitive=True)
-            & CustomFilters.sudo,
+            & CustomFilters.owner,
         )
     )
     TgClient.bot.add_handler(
         MessageHandler(
             remove_sudo,
             filters=command(BotCommands.RmSudoCommand, case_sensitive=True)
-            & CustomFilters.sudo,
+            & CustomFilters.owner,
         )
     )
     TgClient.bot.add_handler(
