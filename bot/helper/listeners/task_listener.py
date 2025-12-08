@@ -347,6 +347,11 @@ class TaskListener(TaskConfig):
             ):
                 buttons = ButtonMaker()
                 if link:
+                    remote, rpath = rclone_path.split(":", 1)
+                    url_path = rutils.quote(f"{rpath}")
+                    link = f"{Config.INDEX_URL}/{url_path}"
+                    if mime_type == "Folder":
+                        link += "/"
                     buttons.url_button("☁️ Cloud Link", link)
                 else:
                     msg += f"\n\nPath: <code>{rclone_path}</code>"
